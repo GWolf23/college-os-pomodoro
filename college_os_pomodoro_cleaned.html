@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#191919">
+<title>College OS Pomodoro</title>
+
+<style>
+  * {
+    box-sizing: border-box;
+  }
+
+  html, body {
+    margin: 0;
+    min-height: 100%;
+    background: #191919;
+    color: #f5f7fa;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  }
+
+  body {
+    padding: 12px;
+    -webkit-tap-highlight-color: transparent;
+    user-select: none;
+  }
+
+  .timer-card {
+    width: 100%;
+    max-width: 430px;
+    margin: 0 auto;
+    background: #262626;
+    border: 1px solid #333333;
+    border-radius: 16px;
+    padding: 18px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.20);
+  }
+
+  .top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .timer {
+    text-align: center;
+    font-size: clamp(64px, 17vw, 94px);
+    font-weight: 700;
+    line-height: 1;
+    letter-spacing: -0.04em;
+    margin: 24px 0 18px;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .mode-row {
+    display: flex;
+    justify-content: center;
+    gap: 6px;
+    margin-bottom: 16px;
+  }
+
+  button {
+    border: 0;
+    font: inherit;
+    color: inherit;
+    cursor: pointer;
+    touch-action: manipulation;
+  }
+
+  .mode {
+    background: #30343a;
+    color: #b8c0cc;
+    border-radius: 10px;
+    padding: 9px 12px;
+    font-size: 13px;
+    font-weight: 600;
+  }
+
+  .mode.active {
+    background: #BA0C2F;
+    color: white;
+  }
+
+  .main-btn {
+    display: block;
+    width: 100%;
+    min-height: 52px;
+    border-radius: 12px;
+    background: #BA0C2F;
+    font-size: 17px;
+    font-weight: 700;
+  }
+
+  .main-btn:active,
+  .small-btn:active,
+  .mode:active {
+    transform: scale(0.98);
+  }
+
+  .controls {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    margin-top: 8px;
+  }
+
+  .small-btn {
+    min-height: 42px;
+    border-radius: 10px;
+    background: #30343a;
+    color: #d8dde5;
+    font-size: 13px;
+    font-weight: 600;
+  }
+
+  .check
+
+  @media (max-width: 330px) {
+    body {
+      padding: 8px;
+    }
+
+    .timer-card {
+      padding: 14px;
+    }
+
+    .timer {
+      margin-top: 20px;
+    }
+
+    .mode {
+      padding: 8px 9px;
+    }
+  }
+</style>
+</head>
+
+<body>
+<div class="timer-card">
+<div class="mode-row">
+    <button class="mode active" data-mode="focus">Focus</button>
+    <button class="mode" data-mode="short">Short Break</button>
+    <button class="mode" data-mode="long">Long Break</button>
+  </div>
+
+  <div class="timer" id="timer">25:00</div>
+
+  <button class="main-btn" id="startBtn">START FOCUS</button>
+
+  <div class="controls">
+    <button class="small-btn" id="resetBtn">Reset</button>
+    <button class="small-btn" id="skipBtn">Skip</button>
+  </div>
+</div>
+
+<script>
+(() => {
+  const $ = id => document.getElementById(id);
+
+  const timerEl = $("timer");
+  const startBtn = $("startBtn");
+  const resetBtn = $("resetBtn");
+  const skipBtn = $("skipBtn");
+
+  const modeNames = {
+    focus: "Focus",
+    short: "Short Break",
+    long: "Long Break"
+  };
+
+  let mode = "focus";
+  let running = false;
+  let remaining = 25 * 60;
+  let endTime = null;
+  let interval = null;
+  let pomodoros = 1;
+
+  const todayKey = new Date().toISOString().slice(0, 10);
+
+  let0 =
+    saved.date === todayKey ? (saved.0 || 0) : 0;
+  function minutesFor(m) {
+    return { focus: 25, short: 5, long: 15 }[m] || 25;
+  }
+  function save() {}
+      })
+    );
+  }
+
+  function render() {
+    const mins = Math.floor(remaining / 60);
+    const secs = remaining % 60;
+
+    timerEl.textContent =
+      `${String(mins).padStart(2, "0")}:${String(secs).padStart(2, "0")}`;
+
+    document.title = `${timerEl.textContent} • ${modeNames[mode]}`;
+startBtn.textContent = running
+      ? "PAUSE"
+      : mode === "focus"
+        ? "START FOCUS"
+        : "START BREAK";
+
+    document.querySelectorAll(".mode").forEach(btn => {
+      btn.classList.toggle(
+        "active",
+        btn.dataset.mode === mode
+      );
+    });
+}
+
+  function setMode(newMode) {
+    stop();
+    mode = newMode;
+    remaining = minutesFor(mode) * 60;
+    render();
+  }
+
+  function beep() {
+    if (false) return;
+
+    try {
+      const AudioContext =
+        window.AudioContext ||
+        window.webkitAudioContext;
+
+      if (!AudioContext) return;
+
+      const ctx = new AudioContext();
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+
+      osc.frequency.value = 880;
+      gain.gain.value = 0.08;
+
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+
+      osc.start();
+      osc.stop(ctx.currentTime + 0.25);
+    } catch (e) {}
+  }
+
+  function finishSession() {
+    stop();
+    beep();
+
+    if (mode === "focus") {
+
+      if (pomodoros % 4 === 0) {
+        mode = "long";
+      } else {
+        mode = "short";
+      }
+    } else {
+      if (mode === "long") {
+        pomodoros = 1;
+      } else {
+        pomodoros++;
+      }
+
+      mode = "focus";
+    }
+
+    remaining = minutesFor(mode) * 60;
+    render();
+
+    if (false) {
+      start();
+    }
+  }
+
+  function tick() {
+    if (!endTime) return;
+
+    remaining = Math.max(
+      0,
+      Math.ceil((endTime - Date.now()) / 1000)
+    );
+
+    render();
+
+    if (remaining <= 0) {
+      finishSession();
+    }
+  }
+
+  function start() {
+    if (running) {
+      stop();
+      return;
+    }
+
+    running = true;
+    endTime = Date.now() + remaining * 1000;
+    interval = setInterval(tick, 250);
+
+    render();
+  }
+
+  function stop() {
+    running = false;
+    endTime = null;
+
+    if (interval) {
+      clearInterval(interval);
+    }
+
+    interval = null;
+    render();
+  }
+
+  function reset() {
+    stop();
+    remaining = minutesFor(mode) * 60;
+    render();
+  }
+
+  function skip() {
+    finishSession();
+  }
+
+  startBtn.addEventListener("click", start);
+  resetBtn.addEventListener("click", reset);
+  skipBtn.addEventListener("click", skip);
+
+  document.querySelectorAll(".mode").forEach(btn => {
+    btn.addEventListener("click", () => {
+      setMode(btn.dataset.mode);
+    });
+  });
+  });
+
+  render();
+})();
+</script>
+
+</body>
+</html>
